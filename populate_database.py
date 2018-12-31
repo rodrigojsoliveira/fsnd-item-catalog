@@ -71,49 +71,49 @@ session.add(item)
 session.commit()
 
 # Category 2 - Toys, Kids, Baby
-item = Item(name = 'SYMA S8 RC Helicopter', description = 'Remote Control Helicopter Aircraft With Shatter Resistant Light Alloy And Flashing Lights', category_id = 1, user_id = 1)
+item = Item(name = 'SYMA S8 RC Helicopter', description = 'Remote Control Helicopter Aircraft With Shatter Resistant Light Alloy And Flashing Lights', category_id = 2, user_id = 1)
 session.add(item)
 session.commit()
 
-item = Item(name = 'REAKIDS Beanies Baby Hat', description = 'Cute Pompon Winter Children Knitted Hat', category_id = 1, user_id = 2)
+item = Item(name = 'REAKIDS Beanies Baby Hat', description = 'Cute Pompon Winter Children Knitted Hat', category_id = 2, user_id = 2)
 session.add(item)
 session.commit()
 
-item = Item(name = 'Muti-fuction Baby/Adult Digital Termometer', description = 'Infrared Forehead and Body Thermometer No-contact Gun', category_id = 1, user_id = 3)
+item = Item(name = 'Muti-fuction Baby/Adult Digital Termometer', description = 'Infrared Forehead and Body Thermometer No-contact Gun', category_id = 2, user_id = 3)
 session.add(item)
 session.commit()
 
-item = Item(name = 'Silicone Training Toothbrush', description = 'BPA Free Banana Shape, Toddler Safe', category_id = 1, user_id = 4)
+item = Item(name = 'Silicone Training Toothbrush', description = 'BPA Free Banana Shape, Toddler Safe', category_id = 2, user_id = 4)
 session.add(item)
 session.commit()
 
 # Category 3 - Jewelry and Watches
-item = Item(name = 'Vintage Steampunk Retro Watch', description = 'Bronze Pocket Watch, Quartz', category_id = 1, user_id = 1)
+item = Item(name = 'Vintage Steampunk Retro Watch', description = 'Bronze Pocket Watch, Quartz', category_id = 3, user_id = 1)
 session.add(item)
 session.commit()
 
-item = Item(name = 'Marvel Avengers Thor\'s Hammer Keychain', description = 'Mjolnir Metal Model Keyring Pendant', category_id = 1, user_id = 2)
+item = Item(name = 'Marvel Avengers Thor\'s Hammer Keychain', description = 'Mjolnir Metal Model Keyring Pendant', category_id = 3, user_id = 2)
 session.add(item)
 session.commit()
 
-item = Item(name = 'Nature Lapel Pins', description = 'Cactus, Palm Leaves, Plants, Trees, Enamel Brooches', category_id = 1, user_id = 3)
+item = Item(name = 'Nature Lapel Pins', description = 'Cactus, Palm Leaves, Plants, Trees, Enamel Brooches', category_id = 3, user_id = 3)
 session.add(item)
 session.commit()
 
 # Category 4 - Sports and Outdoors
-item = Item(name = 'KastKing Spartacus Plus Baitcasting Fishing Reel', description = 'Dual Brake System Reel, 8KG Maximum Drag 11+1 BBs 6.3:1', category_id = 1, user_id = 1)
+item = Item(name = 'KastKing Spartacus Plus Baitcasting Fishing Reel', description = 'Dual Brake System Reel, 8KG Maximum Drag 11+1 BBs 6.3:1', category_id = 4, user_id = 1)
 session.add(item)
 session.commit()
 
-item = Item(name = 'Outdoor 3-4 persons automatic speed open tent', description = 'Throwing pop-up windproof waterproof beach camping tent with large inner space', category_id = 1, user_id = 2)
+item = Item(name = 'Outdoor 3-4 persons automatic speed open tent', description = 'Throwing pop-up windproof waterproof beach camping tent with large inner space', category_id = 4, user_id = 2)
 session.add(item)
 session.commit()
 
-item = Item(name = 'Silicone Mouthpiece Teeth Protector', description = 'For Boxing, Baseball, Single Side Mouth Guard', category_id = 1, user_id = 3)
+item = Item(name = 'Silicone Mouthpiece Teeth Protector', description = 'For Boxing, Baseball, Single Side Mouth Guard', category_id = 4, user_id = 3)
 session.add(item)
 session.commit()
 
-item = Item(name = 'Spandex large size swimming cap', description = 'Man, women, large size swimming Waterproof swimming caps, silicone, protect ears', category_id = 1, user_id = 3)
+item = Item(name = 'Spandex large size swimming cap', description = 'Man, women, large size swimming Waterproof swimming caps, silicone, protect ears', category_id = 4, user_id = 3)
 session.add(item)
 session.commit()
 
