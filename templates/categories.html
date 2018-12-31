@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>FSND Item Catalog</title>
+    </head>
+    <body>
+        <a href="#">Login</a>
+        <h2>Item Catalog</h2>
+        <br>
+        <h3>Category</h3>
+        <a href="#">Add new Category</a>
+        <ul>
+            {% for c in categories %}
+            <li>
+                <a href="#">{{ c.name }}</a>
+                <a href="#">Edit</a>
+                <a href="#">Delete</a>
+            </li>
+            {% endfor %}
+        </ul>    
+    </body>
+</html>
