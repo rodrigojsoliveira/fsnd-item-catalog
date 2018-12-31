@@ -9,9 +9,7 @@ Session = sessionmaker(bind=engine)
 
 session = Session()
 
-# Create permission levels that will be set for each user. 'Admins' will be able to create Item Categories,
-# add, edit and delete any item and will also set user permissions. 'User's will only be able to add, edit and
-# delete their own items. 
+# Create permission levels that will be set for each user. 'Admins' will be able to create, edit and delete item categories, add, edit and delete items and will also set user permissions. 'User's will only be able to add, edit and delete their own items. 
 permission = Permission(level = 'admin')
 session.add(permission)
 session.commit()
