@@ -14,7 +14,7 @@
         <ul>
             {% for c in categories %}
             <li>
-                <a href="#">{{ c.name }}</a>
+                <a href="{{ url_for('showItems', category = c.name) }}">{{ c.name }}</a>
                 <a href="#">Edit</a>
                 <a href="#">Delete</a>
             </li>

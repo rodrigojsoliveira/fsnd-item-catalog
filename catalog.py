@@ -1,23 +1,36 @@
 #!/usr/bin/python3
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from itemCatalogDatabase_setup import Category
+from sqlalchemy.orm import sessionmaker, scoped_session
+from itemCatalogDatabase_setup import Category, Item, Base
 from flask import Flask, render_template, url_for, redirect
 
-engine = create_engine('sqlite:///catalog.db')
-Session = sessionmaker(bind=engine)
-session = Session()
 app = Flask(__name__)
 
+engine = create_engine('sqlite:///catalog.db')
+Session = scoped_session(sessionmaker(bind=engine))
+session = Session()
+
+# Redirect all request from root to /categories.
 @app.route('/')
 def redirectToShowCategories():
     return redirect(url_for('showCategories'))
 
-@app.route('/categories')
+# Show all categories.
+@app.route('/categories/')
 def showCategories():
     categories = session.query(Category).all()
     return render_template('categories.html', categories = categories)
+
+# Show all items in selected category.
+@app.route('/categories/<string:category>/items/')
+def showItems(category):
+    category_data = session.query(Category.id, Category.name).filter_by(name=category).one()
+    # Check if category was found. If not, print error message and return to categories page.
+    if category_data is None:
+        return redirect(url_for('showCategories'))
+    items = session.query(Item).filter_by(category_id=category_data[0]).all()
+    return render_template('items.html', items=items, category_name = category_data[1])
 
 if __name__ == '__main__':
     app.debug = True
