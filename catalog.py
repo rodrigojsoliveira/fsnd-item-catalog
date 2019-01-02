@@ -70,7 +70,6 @@ def deleteEmptyCategory(category):
     if items is not None:
         flash('There are items in this category. Unable to delete.')
         return redirect(url_for('showCategories'))
-    # Delete only empty categories.
     if request.method == 'POST':
         answer = request.form['answer']
         if answer == 'yes':
@@ -87,9 +86,41 @@ def showItems(category):
     category_data = session.query(Category.id, Category.name).filter_by(name=category).first()
     # Check if category was found. If not, print error message and return to categories page.
     if category_data is None:
+        flash('Category not found.')
         return redirect(url_for('showCategories'))
     items = session.query(Item).filter_by(category_id=category_data[0]).all()
     return render_template('items.html', items=items, category_name = category_data[1])
+
+# Add item.
+@app.route('/categories/<string:category>/items/new', methods = ['GET', 'POST'])
+def addItem(category):
+    category_data = session.query(Category.id, Category.name).filter_by(name=category).first()
+    if category_data is None:
+        flash('Category not found.')
+        return redirect(url_for('showCategories'))
+    if request.method == 'POST':
+        # Check if item already exists.
+        item = session.query(Item).filter_by(name=request.form['name']).first()
+        if item is not None:
+            flash('Item already exists.')
+            return redirect(url_for('showItems', category=category))
+        name = request.form['name']
+        description = request.form['description']
+        user_id = request.form['user_id']
+        category_id = category_data[0]
+        item = Item(name=name, description=description, user_id=user_id, category_id=category_id)
+        session.add(item)
+        session.commit()
+        flash('New item created successfully!')
+        return redirect(url_for('showItems', category=category))
+    else:
+        return render_template('addItem.html', category = category)
+
+# Edit item.
+
+# Delete item.
+
+# Edit user permission level.
 
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
