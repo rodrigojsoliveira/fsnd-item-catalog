@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Category</title>
+</head>
+<body>
+    <form action="{{ url_for('deleteEmptyCategory', category = category.name) }}" method="POST">
+        <h3>Are you sure you want to delete category <strong>{{ category.name }}</strong>?</h3>
+        <button type="submit" name="answer" value="yes">Yes</button>
+        <button type="submit" name="answer" value="no">No</button>
+    </form>
+</body>
+</html>

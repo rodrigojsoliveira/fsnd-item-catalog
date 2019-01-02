@@ -35,9 +35,33 @@ def editCategory(category):
             session.add(category_data)
             session.commit()
             flash('Category updated successfuly!')
+        else:
+            flash('Nothing changed.')
         return redirect(url_for('showCategories'))
     else:
         return render_template('editCategory.html', category=category_data)
+
+# Delete empty category.
+@app.route('/categories/<string:category>/delete/', methods = ['GET', 'POST'])
+def deleteEmptyCategory(category):
+    category_data = session.query(Category).filter_by(name=category).one()
+    items = session.query(Item).filter_by(category_id=category_data.id).all()
+    if category_data is None:
+        flash('No such category.')
+        return redirect(url_for('showCategories'))
+    if items is not None:
+        flash('There are items in this category. Unable to delete.')
+        return redirect(url_for('showCategories'))
+    # Delete only empty categories.
+    if request.method == 'POST':
+        answer = request.form['answer']
+        if answer == 'yes':
+            session.delete(category_data)
+            session.commit()
+            flash('Category deleted successfully!')
+        return redirect(url_for('showCategories'))
+    else:
+        return render_template('deleteCategory.html', category = category_data)        
 
 # Show all items in selected category.
 @app.route('/categories/<string:category>/items/')

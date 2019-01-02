@@ -7,16 +7,21 @@
     </head>
     <body>
         <a href="#">Login</a>
-        <h2>Item Catalog</h2>
-        <br>
-        <h3>Category</h3>
+        <h3>Categories</h3>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <h4>{{ message }}</h4>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
         <a href="#">Add new Category</a>
         <ul>
             {% for c in categories %}
             <li>
                 <a href="{{ url_for('showItems', category = c.name) }}">{{ c.name }}</a>
                 <a href="{{ url_for('editCategory', category = c.name) }}">Edit</a>
-                <a href="#">Delete</a>
+                <a href="{{ url_for('deleteEmptyCategory', category = c.name) }}">Delete</a>
             </li>
             {% endfor %}
         </ul>    
