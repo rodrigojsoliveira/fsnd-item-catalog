@@ -92,7 +92,7 @@ def showItems(category):
     return render_template('items.html', items=items, category_name = category_data[1])
 
 # Add item.
-@app.route('/categories/<string:category>/items/new', methods = ['GET', 'POST'])
+@app.route('/categories/<string:category>/items/new/', methods = ['GET', 'POST'])
 def addItem(category):
     category_data = session.query(Category.id, Category.name).filter_by(name=category).first()
     if category_data is None:
@@ -104,8 +104,10 @@ def addItem(category):
         if item is not None:
             flash('Item already exists.')
             return redirect(url_for('showItems', category=category))
-        name = request.form['name']
-        description = request.form['description']
+        if request.form['name']:
+            name = request.form['name']
+        if request.form['description']:
+            description = request.form['description']
         user_id = request.form['user_id']
         category_id = category_data[0]
         item = Item(name=name, description=description, user_id=user_id, category_id=category_id)
@@ -117,10 +119,39 @@ def addItem(category):
         return render_template('addItem.html', category = category)
 
 # Edit item.
+@app.route('/categories/<string:category>/items/<int:item_id>/edit/', methods = ['GET', 'POST'])
+def editItem(category, item_id):
+    category_data = session.query(Category.id, Category.name).filter_by(name=category).first()
+    if category_data is None:
+        flash('Category not found.')
+        return redirect(url_for('showCategories'))
+    # Check if item id exists and if it belongs to the selected category.
+    item = session.query(Item).filter_by(id=item_id, category_id=category_data[0]).first()
+    if item is None:
+        flash('Item does not exist in this category.')
+        return redirect(url_for('showItems', category=category))
+    if request.method == 'POST':
+        # Check if item name already exists in the selected category.
+        if item.name == request.form['name']:
+            flash('Item already exists in this category.')
+            return redirect(url_for('showItems', category = category))
+        if request.form['name']:
+            item.name = request.form['name']
+        if request.form['description']:
+            item.description = request.form['description']
+        item.category_id = category_data[0]
+        item.user_id = request.form['user_id']
+        session.add(item)
+        session.commit()
+        flash('Item updated successfully!')
+        return redirect(url_for('showItems', category=category))
+    else:
+        return render_template('editItem.html', category = category, item = item)
 
 # Delete item.
 
 # Edit user permission level.
+
 
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'

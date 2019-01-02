@@ -15,7 +15,7 @@
             <div>
                 <p>{{ item.name }}</p>
                 <p>{{ item.description }}</p>
-                <a href="#">Edit</a>
+                <a href="{{ url_for('editItem', category=category_name, item_id=item.id) }}">Edit</a>
                 <a href="#">Delete</a>
             </div>
         </li>
