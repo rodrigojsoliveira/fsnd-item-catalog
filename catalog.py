@@ -22,10 +22,28 @@ def showCategories():
     categories = session.query(Category).all()
     return render_template('categories.html', categories = categories)
 
+# Create new category.
+@app.route('/categories/new/', methods = ['GET', 'POST'])
+def addCategory():
+    if request.method == 'POST':
+        # Check if category already exists.
+        category = session.query(Category).filter_by(name=request.form['name']).first()
+        if category is not None:
+            flash('Category already exists.')
+            return redirect(url_for('showCategories'))
+        else:
+            category = Category(name = request.form['name'], user_id = int(request.form['user_id']))
+            session.add(category)
+            session.commit()
+            flash('New category created successfully!')
+            return redirect(url_for('showCategories'))
+    else:
+        return render_template('addCategory.html')
+
 # Edit category.
 @app.route('/categories/<string:category>/edit/', methods = ['GET', 'POST'])
 def editCategory(category):
-    category_data = session.query(Category).filter_by(name=category).one()
+    category_data = session.query(Category).filter_by(name=category).first()
     if category_data is None:
         return redirect(url_for('showCategories'))
     if request.method == 'POST':
@@ -44,8 +62,8 @@ def editCategory(category):
 # Delete empty category.
 @app.route('/categories/<string:category>/delete/', methods = ['GET', 'POST'])
 def deleteEmptyCategory(category):
-    category_data = session.query(Category).filter_by(name=category).one()
-    items = session.query(Item).filter_by(category_id=category_data.id).all()
+    category_data = session.query(Category).filter_by(name=category).first()
+    items = session.query(Item).filter_by(category_id=category_data.id).first()
     if category_data is None:
         flash('No such category.')
         return redirect(url_for('showCategories'))
@@ -66,7 +84,7 @@ def deleteEmptyCategory(category):
 # Show all items in selected category.
 @app.route('/categories/<string:category>/items/')
 def showItems(category):
-    category_data = session.query(Category.id, Category.name).filter_by(name=category).one()
+    category_data = session.query(Category.id, Category.name).filter_by(name=category).first()
     # Check if category was found. If not, print error message and return to categories page.
     if category_data is None:
         return redirect(url_for('showCategories'))

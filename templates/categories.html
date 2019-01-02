@@ -15,7 +15,7 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
-        <a href="#">Add new Category</a>
+        <a href="{{ url_for('addCategory') }}">Add new category</a>
         <ul>
             {% for c in categories %}
             <li>
