@@ -149,6 +149,26 @@ def editItem(category, item_id):
         return render_template('editItem.html', category = category, item = item)
 
 # Delete item.
+@app.route('/categories/<string:category>/items/<int:item_id>/delete/', methods = ['GET', 'POST'])
+def deleteItem(category, item_id):
+    category_data = session.query(Category.id, Category.name).filter_by(name=category).first()
+    if category_data is None:
+        flash('Category not found.')
+        return redirect(url_for('showCategories'))
+    # Check if item id exists and if it belongs to the selected category.
+    item = session.query(Item).filter_by(id=item_id, category_id=category_data[0]).first()
+    if item is None:
+        flash('Item does not exist in this category.')
+        return redirect(url_for('showItems', category=category))
+    if request.method == 'POST':
+        answer = request.form['answer']
+        if answer == 'yes':
+            session.delete(item)
+            session.commit()
+            flash('Item deleted successfully!')
+        return redirect(url_for('showItems', category=category))
+    else:
+        return render_template('deleteItem.html', category=category, item_id=item_id)
 
 # Edit user permission level.
 
