@@ -3,9 +3,17 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from itemCatalogDatabase_setup import Category, Item, Base
-from flask import Flask, render_template, url_for, redirect, request, flash
+from flask import Flask, render_template, url_for, redirect, request, flash, session as login_session
+from flask import make_response
+import random, string
+from oauth2client.client import flow_from_clientsecrets, FlowExchangeError
+import httplib2
+import requests
+import json
 
 app = Flask(__name__)
+
+CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']
 
 engine = create_engine('sqlite:///catalog.db')
 Session = scoped_session(sessionmaker(bind=engine))
@@ -14,6 +22,84 @@ session = Session()
 # Redirect all request from root to /categories.
 @app.route('/')
 def redirectToShowCategories():
+    return redirect(url_for('showCategories'))
+
+# Login
+@app.route('/login/')
+def userLogin():
+    # Create a state token to prevent request forgery.
+    state = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in xrange(32))
+    # Store state token in user login session.
+    login_session['state'] = state
+    return render_template('login.html', STATE = state)
+
+@app.route('/gconnect', methods = ['POST'])
+def gconnect():
+    # Check state token sent from the client, preventing request forgery.
+    if request.args.get('state') != login_session['state']:
+        response = make_response(json.dumps('Invalid state parameter.'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    # Retrieve one-time-code sent by client. This code was given to the client by Google.
+    code = request.data
+
+    # Upgrade the authorization code into a credentials object.
+    try:
+        oauth_flow = flow_from_clientsecrets('client_secrets.json', scope='')
+        oauth_flow.redirect_uri = 'postmessage'
+        credentials = oauth_flow.step2_exchange(code)
+    except FlowExchangeError:
+        response = make_response(json.dumps('Failed to upgrade the authorization code.'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    # Check with Google if the client's access token is valid.
+    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s' % credentials.access_token)
+    h = httplib2.Http()
+    result = json.loads(h.request(url, 'GET')[1])
+
+    # Abort if there was an error in the access token info.
+    if result.get('error') is not None:
+        response = make_response(json.dumps(result.get('error')), 500)
+        response.headers['Content-Type'] = 'application/json'
+        return response #Maybe this line is not necessary.
+    
+    # Verify that the access token from the client is the same given by Google. 
+    # User id and App id must match.
+    gplus_id = credentials.id_token['sub']
+    if result['user_id'] != gplus_id:
+        response = make_response(json.dumps("Token's user id doesn't match given user id."), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    if result['issued_to'] != CLIENT_ID:
+        response = make_response(json.dumps("Token's client id doesn't match app's id."), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    # Check if user is already logged in.
+    stored_credentials = login_session.get('credentials')
+    stored_gplus_id = login_session.get('gplus_id')
+    if stored_credentials is not None and gplus_id == stored_gplus_id:
+        response = make_response(json.dumps('Current user is already connected.'), 200)
+        response.headers['Content-Type'] = 'application/json'
+        return response #Maybe this line is not necessary.
+
+    # Store the access token for later use.
+    login_session['credentials'] = credentials.access_token
+    login_session['gplus_id'] = gplus_id
+
+    # Get user info.
+    userinfo_url = 'https://www.googleapis.com/oauth2/v1/userinfo'
+    params = {'access_token': credentials.access_token, 'alt': 'json'}
+    answer = requests.get(userinfo_url, params=params)
+    data = json.loads(answer.text)
+    login_session['username'] = data['name']
+    login_session['email'] = data['email']
+    
+    # Login successfull. Redirect to categories page.
+    flash('Login successfull!')
     return redirect(url_for('showCategories'))
 
 # Show all categories.
