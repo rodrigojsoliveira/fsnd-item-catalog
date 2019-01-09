@@ -35,7 +35,8 @@
                         data: authResult['code'],
                         success: function(result) {
                             if (result) {
-                                $('#result').html('Login successfull</br>' + result + '</br>Redirecting...');
+                                $('#result').html('Login successfull</br></br>Redirecting...');
+                                console.log(result)
                                 setTimeout(function() {
                                     window.location.href = "{{ url_for('showCategories') }}";
                                 }, 2000);
@@ -49,6 +50,6 @@
                 }
             }
         </script>
-        <a href="#" onclick="signOut();">Sign out</a>
+        <a href="{{ url_for('gdisconnect') }}">Sign out</a>
     </body>
 </html>
