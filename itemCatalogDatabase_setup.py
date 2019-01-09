@@ -9,21 +9,13 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key = True)
-    name = Column(String(30), nullable = False)
-    permission_id = Column(Integer, ForeignKey('permissions.id'), nullable = False)
-    permission = relationship('Permission')
-
-class Permission(Base):
-    __tablename__ = 'permissions'
-    id = Column(Integer, primary_key = True)
-    level = Column(String(20), nullable = False)
+    username = Column(String(30), nullable = False)
+    email = Column(String(50), nullable = False)
 
 class Category(Base):
     __tablename__ = 'categories'
     id = Column(Integer, primary_key = True)
     name = Column(String(30), nullable = False)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable = False)
-    user = relationship('User')
 
 class Item(Base):
     __tablename__ = 'items'
@@ -34,13 +26,6 @@ class Item(Base):
     category = relationship('Category')
     user_id = Column(Integer, ForeignKey('users.id'), nullable = False)
     user = relationship('User')
-
-class Favorite(Base):
-    __tablename__ = 'favorites'
-    user_id = Column(Integer, ForeignKey('users.id'), nullable = False, primary_key = True)
-    user = relationship('User')
-    item_id = Column(Integer, ForeignKey('items.id'), nullable = False, primary_key = True)
-    item = relationship('Item')
 
 engine = create_engine('sqlite:///catalog.db')
 Base.metadata.create_all(engine)
