@@ -2,7 +2,7 @@
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
-from itemCatalogDatabase_setup import Category, Item, Base
+from itemCatalogDatabase_setup import Category, Item, Base, User
 from flask import Flask, render_template, url_for, redirect, request, flash, session as login_session
 from flask import make_response
 import random, string
@@ -53,7 +53,7 @@ def gconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
-    # Check with Google if the client's access token is valid.
+    # Check with Google client's access token.
     url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s' % credentials.access_token)
     h = httplib2.Http()
     result = json.loads(h.request(url, 'GET')[1])
@@ -90,15 +90,29 @@ def gconnect():
     login_session['gplus_id'] = gplus_id
 
     # Get user info.
-    userinfo_url = 'https://www.googleapis.com/oauth2/v1/userinfo'
+    userinfo_url = 'https://www.googleapis.com/oauth2/v2/userinfo'
     params = {'access_token': credentials.access_token, 'alt': 'json'}
     answer = requests.get(userinfo_url, params=params)
+    print (answer)
     data = json.loads(answer.text)
+    print(data)
     login_session['username'] = data['name']
     login_session['email'] = data['email']
-    
+
+    # Check if user exists in database. If not, create a new user.
+    existingUser = getUserID(login_session['email'])
+    print (existingUser)
+    if existingUser is None:
+        newUserId = createUser(login_session)
+        print (newUserId)
+        newUser = getUser(newUserId)
+        print (newUser)
+        flash('Hello, %s! This is your first access.' % newUser.username)
+    else:
+        returningUser = getUser(existingUser)
+        flash('Welcome back, %s' % returningUser.username)
+
     # Login successfull. Redirect to categories page.
-    flash('Login successfull!')
     return redirect(url_for('showCategories'))
 
 # Disconnect user.
@@ -204,6 +218,8 @@ def showItems(category):
 # Add item.
 @app.route('/categories/<string:category>/items/new/', methods = ['GET', 'POST'])
 def addItem(category):
+    if 'username' not in login_session:
+        return redirect(url_for('userLogin'))
     category_data = Session.query(Category.id, Category.name).filter_by(name=category).first()
     if category_data is None:
         flash('Category not found.')
@@ -231,6 +247,8 @@ def addItem(category):
 # Edit item.
 @app.route('/categories/<string:category>/items/<int:item_id>/edit/', methods = ['GET', 'POST'])
 def editItem(category, item_id):
+    if 'username' not in login_session:
+        return redirect(url_for('userLogin'))
     category_data = Session.query(Category.id, Category.name).filter_by(name=category).first()
     if category_data is None:
         flash('Category not found.')
@@ -261,6 +279,8 @@ def editItem(category, item_id):
 # Delete item.
 @app.route('/categories/<string:category>/items/<int:item_id>/delete/', methods = ['GET', 'POST'])
 def deleteItem(category, item_id):
+    if 'username' not in login_session:
+        return redirect(url_for('userLogin'))
     category_data = Session.query(Category.id, Category.name).filter_by(name=category).first()
     if category_data is None:
         flash('Category not found.')
@@ -280,8 +300,27 @@ def deleteItem(category, item_id):
     else:
         return render_template('deleteItem.html', category=category, item_id=item_id)
 
-# Edit user permission level.
+# Creates a new user if its his/her first login and return their user_id.
+def createUser(login_session):
+    newUser = User(username = login_session['username'], email = login_session['email'])
+    Session.add(newUser)
+    Session.commit()
+    # Retrieve new user's user_id
+    user_id = Session.query(User).filter_by(email = login_session['email']).one()
+    return user_id
 
+# Return a User object based on their user_id.
+def getUser(user_id):
+    user = Session.query(User).filter_by(id = user_id).one()
+    return user
+
+# Retrieve a user_id based on their email.
+def getUserID(email):
+    user = Session.query(User).filter_by(email = email).first()
+    if user:
+        return user.id
+    else:
+        return None
 
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
