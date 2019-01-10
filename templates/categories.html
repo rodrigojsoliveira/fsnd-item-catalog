@@ -15,13 +15,10 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
-        <a href="{{ url_for('addCategory') }}">Add new category</a>
         <ul>
             {% for c in categories %}
             <li>
                 <a href="{{ url_for('showItems', category = c.name) }}">{{ c.name }}</a>
-                <a href="{{ url_for('editCategory', category = c.name) }}">Edit</a>
-                <a href="{{ url_for('deleteEmptyCategory', category = c.name) }}">Delete</a>
             </li>
             {% endfor %}
         </ul>    

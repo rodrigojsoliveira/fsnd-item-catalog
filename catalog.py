@@ -146,64 +146,6 @@ def showCategories():
     categories = Session.query(Category).all()
     return render_template('categories.html', categories = categories)
 
-# Create new category.
-@app.route('/categories/new/', methods = ['GET', 'POST'])
-def addCategory():
-    if request.method == 'POST':
-        # Check if category already exists.
-        category = Session.query(Category).filter_by(name=request.form['name']).first()
-        if category is not None:
-            flash('Category already exists.')
-            return redirect(url_for('showCategories'))
-        else:
-            category = Category(name = request.form['name'], user_id = int(request.form['user_id']))
-            Session.add(category)
-            Session.commit()
-            flash('New category created successfully!')
-            return redirect(url_for('showCategories'))
-    else:
-        return render_template('addCategory.html')
-
-# Edit category.
-@app.route('/categories/<string:category>/edit/', methods = ['GET', 'POST'])
-def editCategory(category):
-    category_data = Session.query(Category).filter_by(name=category).first()
-    if category_data is None:
-        return redirect(url_for('showCategories'))
-    if request.method == 'POST':
-        if request.form['name']:
-            category_data.name = request.form['name']
-            category_data.user_id = request.form['user_id']
-            Session.add(category_data)
-            Session.commit()
-            flash('Category updated successfuly!')
-        else:
-            flash('Nothing changed.')
-        return redirect(url_for('showCategories'))
-    else:
-        return render_template('editCategory.html', category=category_data)
-
-# Delete empty category.
-@app.route('/categories/<string:category>/delete/', methods = ['GET', 'POST'])
-def deleteEmptyCategory(category):
-    category_data = Session.query(Category).filter_by(name=category).first()
-    items = Session.query(Item).filter_by(category_id=category_data.id).first()
-    if category_data is None:
-        flash('No such category.')
-        return redirect(url_for('showCategories'))
-    if items is not None:
-        flash('There are items in this category. Unable to delete.')
-        return redirect(url_for('showCategories'))
-    if request.method == 'POST':
-        answer = request.form['answer']
-        if answer == 'yes':
-            Session.delete(category_data)
-            Session.commit()
-            flash('Category deleted successfully!')
-        return redirect(url_for('showCategories'))
-    else:
-        return render_template('deleteCategory.html', category = category_data)        
-
 # Show all items in selected category.
 @app.route('/categories/<string:category>/items/')
 def showItems(category):
