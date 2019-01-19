@@ -7,6 +7,7 @@
 </head>
 <body>
     <h2>{{ category_name }}</h2>
+    <a href="{{ url_for('addItem', category = category_name) }}">Add new item</a>
     <a href="{{ url_for('showCategories') }}">Categories</a>
     <ul>
         {% for item in items %}
@@ -14,6 +15,11 @@
             <div>
                 <p>{{ item.name }}</p>
                 <p>{{ item.description }}</p>
+                <p>user id is {{ user_id }} and item user id is {{ item.user_id }}.</p>
+                {% if user_id == item.user_id %}
+                    <a href="{{ url_for('editItem', category=category_name, item_id=item.id) }}">Edit</a>
+                    <a href="{{ url_for('deleteItem', category=category_name, item_id=item.id) }}">Delete</a>
+                {% endif %}
             </div>
         </li>
         {% endfor %}

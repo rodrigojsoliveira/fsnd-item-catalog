@@ -89,30 +89,27 @@ def gconnect():
     login_session['credentials'] = credentials.access_token
     login_session['gplus_id'] = gplus_id
 
-    # Get user info.
+    # Get user info from Google.
     userinfo_url = 'https://www.googleapis.com/oauth2/v2/userinfo'
     params = {'access_token': credentials.access_token, 'alt': 'json'}
     answer = requests.get(userinfo_url, params=params)
-    print (answer)
     data = json.loads(answer.text)
-    print(data)
     login_session['username'] = data['name']
     login_session['email'] = data['email']
 
     # Check if user exists in database. If not, create a new user.
     existingUser = getUserID(login_session['email'])
-    print (existingUser)
     if existingUser is None:
-        newUserId = createUser(login_session)
-        print (newUserId)
-        newUser = getUser(newUserId)
-        print (newUser)
+        user_id = createUser(login_session)
+        newUser = getUser(user_id)
         flash('Hello, %s! This is your first access.' % newUser.username)
     else:
         returningUser = getUser(existingUser)
+        user_id = returningUser.id
         flash('Welcome back, %s' % returningUser.username)
 
-    # Login successfull. Redirect to categories page.
+    # Login successfull. Add user_id to login_session and redirect to categories page.
+    login_session['user_id'] = user_id
     return redirect(url_for('showCategories'))
 
 # Disconnect user.
@@ -134,6 +131,7 @@ def gdisconnect():
         del login_session['gplus_id']
         del login_session['username']
         del login_session['email']
+        del login_session['user_id']
         flash ('Successfully disconnected.')        
         return redirect(url_for('showCategories'))
     else:
@@ -144,7 +142,10 @@ def gdisconnect():
 @app.route('/categories/')
 def showCategories():
     categories = Session.query(Category).all()
-    return render_template('categories.html', categories = categories)
+    if ('username') not in login_session:
+        return render_template('categories.html', categories = categories)
+    else:
+        return render_template('categories_signout.html', categories = categories)
 
 # Show all items in selected category.
 @app.route('/categories/<string:category>/items/')
@@ -155,7 +156,11 @@ def showItems(category):
         flash('Category not found.')
         return redirect(url_for('showCategories'))
     items = Session.query(Item).filter_by(category_id=category_data[0]).all()
-    return render_template('items.html', items=items, category_name = category_data[1])
+    # If user is not logged in, show item list only, without edit capabilities.
+    if ('username') not in login_session:
+        return render_template('items.html', items=items, category_name=category_data[1])
+    else:
+        return render_template('items_editable.html', items=items, category_name=category_data[1], user_id=login_session['user_id'])
 
 # Add item.
 @app.route('/categories/<string:category>/items/new/', methods = ['GET', 'POST'])
@@ -176,7 +181,7 @@ def addItem(category):
             name = request.form['name']
         if request.form['description']:
             description = request.form['description']
-        user_id = request.form['user_id']
+        user_id = login_session['user_id']
         category_id = category_data[0]
         item = Item(name=name, description=description, user_id=user_id, category_id=category_id)
         Session.add(item)
@@ -209,8 +214,6 @@ def editItem(category, item_id):
             item.name = request.form['name']
         if request.form['description']:
             item.description = request.form['description']
-        item.category_id = category_data[0]
-        item.user_id = request.form['user_id']
         Session.add(item)
         Session.commit()
         flash('Item updated successfully!')
