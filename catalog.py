@@ -4,7 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from itemCatalogDatabase_setup import Category, Item, Base, User
 from flask import Flask, render_template, url_for, redirect, request, flash, session as login_session
-from flask import make_response
+from flask import make_response, jsonify
 import random, string
 from oauth2client.client import flow_from_clientsecrets, FlowExchangeError
 import httplib2
@@ -244,6 +244,30 @@ def deleteItem(category, item_id):
         return redirect(url_for('showItems', category=category))
     else:
         return render_template('deleteItem.html', category=category, item_id=item_id)
+
+# *** API endpoints ***
+# Return all categories.
+@app.route('/json/categories/')
+def getCategories():
+    categories = Session.query(Category).all()
+    return jsonify(Categories = [c.serialize for c in categories])
+
+# Return all items.
+@app.route('/json/items/')
+def getItems():
+    items = Session.query(Item).all()
+    return jsonify(Items = [i.serialize for i in items])
+
+# Return all items in specified category.
+@app.route('/json/<string:category>/items/')
+def getItemsFromCategory(category):
+    category_id = Session.query(Category.id).filter_by(name=category).first()
+    print(category_id)
+    if category_id is not None:
+        items = Session.query(Item).filter_by(category_id=category_id[0]).all()
+        return jsonify(Items = [i.serialize for i in items])
+    else:
+        return ('Category not found.')
 
 # Creates a new user if its his/her first login and return their user_id.
 def createUser(login_session):
