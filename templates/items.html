@@ -1,22 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Items</title>
-</head>
-<body>
+{% extends 'categories.html' %}
+{% block items %}
     <h2>{{ category_name }}</h2>
-    <a href="{{ url_for('showCategories') }}">Categories</a>
-    <ul>
+    <!--a href="{{ url_for('showCategories') }}">Categories</a -->
         {% for item in items %}
-        <li>
-            <div>
-                <p>{{ item.name }}</p>
-                <p>{{ item.description }}</p>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ item.name }}</h5>
+                <p class="card-text">{{ item.description }}</p>
             </div>
-        </li>
+        </div>
+        <br>
         {% endfor %}
     </ul>    
-</body>
-</html>
+{% endblock %}

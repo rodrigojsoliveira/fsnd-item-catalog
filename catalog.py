@@ -143,7 +143,7 @@ def gdisconnect():
 def showCategories():
     categories = Session.query(Category).all()
     if ('username') not in login_session:
-        return render_template('categories.html', categories = categories)
+        return render_template('items.html', categories = categories)
     else:
         return render_template('categories_signout.html', categories = categories)
 
@@ -151,6 +151,7 @@ def showCategories():
 @app.route('/categories/<string:category>/items/')
 def showItems(category):
     category_data = Session.query(Category.id, Category.name).filter_by(name=category).first()
+    categories = Session.query(Category).all() #linha nova
     # Check if category was found. If not, print error message and return to categories page.
     if category_data is None:
         flash('Category not found.')
@@ -158,7 +159,8 @@ def showItems(category):
     items = Session.query(Item).filter_by(category_id=category_data[0]).all()
     # If user is not logged in, show item list only, without edit capabilities.
     if ('username') not in login_session:
-        return render_template('items.html', items=items, category_name=category_data[1])
+        return render_template('items.html', categories = categories, items=items, category_name=category_data[1]) #linha nova
+        #return render_template('items.html', items=items, category_name=category_data[1])
     else:
         return render_template('items_editable.html', items=items, category_name=category_data[1], user_id=login_session['user_id'])
 
