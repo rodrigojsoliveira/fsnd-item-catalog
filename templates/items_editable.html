@@ -1,28 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Items</title>
-</head>
-<body>
+{% extends 'categories.html' %}
+{% block login_logout %}
+    <a href="{{ url_for('gdisconnect') }}">Sign Out</a>
+{% endblock %}
+{% block items %}
     <h2>{{ category_name }}</h2>
-    <a href="{{ url_for('addItem', category = category_name) }}">Add new item</a>
-    <a href="{{ url_for('showCategories') }}">Categories</a>
-    <ul>
-        {% for item in items %}
-        <li>
-            <div>
-                <p>{{ item.name }}</p>
-                <p>{{ item.description }}</p>
-                <p>user id is {{ user_id }} and item user id is {{ item.user_id }}.</p>
-                {% if user_id == item.user_id %}
-                    <a href="{{ url_for('editItem', category=category_name, item_id=item.id) }}">Edit</a>
-                    <a href="{{ url_for('deleteItem', category=category_name, item_id=item.id) }}">Delete</a>
-                {% endif %}
-            </div>
-        </li>
-        {% endfor %}
-    </ul>    
-</body>
-</html>
+    {% if items %}
+        <a href="{{ url_for('addItem', category = category_name) }}">Add new item</a>
+        <br>
+    {% endif %}
+    {% for item in items %}
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{ item.name }}</h5>
+            <p class="card-text">{{ item.description }}</p>
+            {% if user_id == item.user_id %}
+                <a class="btn btn-primary" href="{{ url_for('editItem', category=category_name, item_id=item.id) }}">Edit</a>
+                <a class="btn btn-danger" href="{{ url_for('deleteItem', category=category_name, item_id=item.id) }}">Delete</a>
+            {% endif %}
+        </div>
+    </div>
+    <br>
+    {% endfor %}
+{% endblock %}

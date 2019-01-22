@@ -1,26 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-        <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
-        <title>Login</title>
-    </head>
-    <body>
-        <h4>Plese sign in to create, edit, and delete items!</h4>
-        <div id="signinButton">
-            <span class="g-signin"
-                data-scope="email"
-                data-clientid="932226422550-ch0do9lelgjbp16btj542a8jad172hnj.apps.googleusercontent.com"
-                data-redirecturi="postmessage"
-                data-accesstype="offline"
-                data-cookiepolicy="single_host_origin"
-                data-callback="signInCallback"
-                data-approvalprompt="force">
-            </span>
+{% extends 'index.html' %}
+{% block login_page %}
+    <div class="card mt-5 text-center">
+        <div class="card-header">Login</div>
+        <div class="card-body">
+            <h4 class="card-title">Plese sign in to create, edit, and delete items!</h4>
+            <br>
+            <div id="signinButton">
+                <span class="g-signin"
+                    data-scope="email"
+                    data-clientid="932226422550-ch0do9lelgjbp16btj542a8jad172hnj.apps.googleusercontent.com"
+                    data-redirecturi="postmessage"
+                    data-accesstype="offline"
+                    data-cookiepolicy="single_host_origin"
+                    data-callback="signInCallback"
+                    data-approvalprompt="force">
+                </span>
+            </div>
+            <div id="result"></div>
         </div>
-        <div id="result"></div>
         <script>
             function signInCallback(authResult) {
                 if (authResult['code']) {
@@ -51,5 +48,5 @@
                 }
             }
         </script>
-    </body>
-</html>
+    </div>
+{% endblock %}

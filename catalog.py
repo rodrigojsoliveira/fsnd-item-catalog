@@ -145,7 +145,7 @@ def showCategories():
     if ('username') not in login_session:
         return render_template('items.html', categories = categories)
     else:
-        return render_template('categories_signout.html', categories = categories)
+        return render_template('items_editable.html', categories = categories)
 
 # Show all items in selected category.
 @app.route('/categories/<string:category>/items/')
@@ -162,7 +162,7 @@ def showItems(category):
         return render_template('items.html', categories = categories, items=items, category_name=category_data[1]) #linha nova
         #return render_template('items.html', items=items, category_name=category_data[1])
     else:
-        return render_template('items_editable.html', items=items, category_name=category_data[1], user_id=login_session['user_id'])
+        return render_template('items_editable.html', categories = categories, items = items, category_name = category_data[1], user_id = login_session['user_id'])
 
 # Add item.
 @app.route('/categories/<string:category>/items/new/', methods = ['GET', 'POST'])
