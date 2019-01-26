@@ -1,15 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delete Category</title>
-</head>
-<body>
-    <form action="{{ url_for('deleteItem', category = category, item_id = item_id) }}" method="POST">
-        <h3>Are you sure you want to delete this item?</h3>
-        <button type="submit" name="answer" value="yes">Yes</button>
-        <button type="submit" name="answer" value="no">No</button>
-    </form>
-</body>
-</html>
+{% extends 'index.html' %}
+{% block input_form %}
+<div class="card mt-5 text-center">
+    <div class="card-header">Delete Item</div>
+    <div class="card-body">
+        <form action="{{ url_for('deleteItem', category = category, item_id = item_id) }}" method="POST">
+            <h5>Are you sure you want to delete this item?</h5>
+            <button class="btn btn-danger" type="submit" name="answer" value="yes">Yes</button>
+            <button class="btn btn-secondary" type="submit" name="answer" value="no">No</button>
+        </form>
+{% endblock %}
