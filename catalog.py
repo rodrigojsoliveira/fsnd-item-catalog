@@ -218,7 +218,10 @@ def editItem(category, item_id):
             item.description = request.form['description']
         Session.add(item)
         Session.commit()
-        flash('Item updated successfully!')
+        if not request.form['name'] and not request.form['description']:
+            flash('Nothing changed.')
+        else:
+            flash('Item updated successfully!')
         return redirect(url_for('showItems', category=category))
     else:
         return render_template('editItem.html', category = category, item = item)

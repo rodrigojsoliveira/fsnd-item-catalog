@@ -1,17 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Category</title>
-</head>
-<body>
-    <form action="{{ url_for('editItem', category = category, item_id = item.id) }}" method="POST">
-        <input type="text" name="name" placeholder="{{ item.name }}">
-        <input type="text" name="description" placeholder="{{ item.description }}">
-        <input type="hidden" name="user_id" value="1">
-        <button type="submit">Save changes</button>
-        <a href="{{ url_for('showItems', category = category) }}">Cancel</a>
-    </form>
-</body>
-</html>
+{% extends 'index.html' %}
+{% block input_form %}
+    <div class="card mt-5 text-center">
+        <div class="card-header">Edit Existing Item</div>
+        <div class="card-body">
+            <form action="{{ url_for('editItem', category = category, item_id = item.id) }}" method="POST">
+                <div class="form-group">
+                    <label for="itemName">Item name</label>
+                    <input type="text" id="itemName" name="name" placeholder="{{ item.name }}">
+                </div>
+                <div class="form-group">
+                    <label for="itemDescription">Description</label>
+                    <textarea id="itemDescription" rows="3" name="description" placeholder="{{ item.description }}"></textarea>
+                </div>
+                <button class="btn btn-primary" type="submit">Save changes</button>
+                <button class="btn btn-secondary" type="button" onclick="location.href='{{ url_for('showItems', category=category) }}';">Cancel</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
