@@ -101,12 +101,8 @@ def gconnect():
     existingUser = getUserID(login_session['email'])
     if existingUser is None:
         user_id = createUser(login_session)
-        newUser = getUser(user_id)
-        flash('Hello, %s! This is your first access.' % newUser.username)
     else:
-        returningUser = getUser(existingUser)
-        user_id = returningUser.id
-        flash('Welcome back, %s' % returningUser.username)
+        user_id = existingUser
 
     # Login successfull. Add user_id to login_session and redirect to categories page.
     login_session['user_id'] = user_id
@@ -132,10 +128,10 @@ def gdisconnect():
         del login_session['username']
         del login_session['email']
         del login_session['user_id']
-        flash ('Successfully disconnected.')        
+        flash ('Successfully disconnected.', 'success')        
         return redirect(url_for('showCategories'))
     else:
-        flash ('Failed to revoke token for given user.')        
+        flash ('Failed to revoke token for given user.', 'warning')        
         return redirect(url_for('showCategories'))
 
 # Show all categories.
@@ -154,7 +150,7 @@ def showItems(category):
     categories = Session.query(Category).all() #linha nova
     # Check if category was found. If not, print error message and return to categories page.
     if category_data is None:
-        flash('Category not found.')
+        flash('Category not found.', 'warning')
         return redirect(url_for('showCategories'))
     items = Session.query(Item).filter_by(category_id=category_data[0]).all()
     # If user is not logged in, show item list only, without edit capabilities.
@@ -171,13 +167,13 @@ def addItem(category):
         return redirect(url_for('userLogin'))
     category_data = Session.query(Category.id, Category.name).filter_by(name=category).first()
     if category_data is None:
-        flash('Category not found.')
+        flash('Category not found.', 'warning')
         return redirect(url_for('showCategories'))
     if request.method == 'POST':
         # Check if item already exists.
         item = Session.query(Item).filter_by(name=request.form['name']).first()
         if item is not None:
-            flash('Item already exists.')
+            flash('Item already exists.', 'warning')
             return redirect(url_for('showItems', category=category))
         if request.form['name']:
             name = request.form['name']
@@ -188,7 +184,7 @@ def addItem(category):
         item = Item(name=name, description=description, user_id=user_id, category_id=category_id)
         Session.add(item)
         Session.commit()
-        flash('New item created successfully!')
+        flash('New item created successfully!', 'success')
         return redirect(url_for('showItems', category=category))
     else:
         return render_template('addItem.html', category = category)
@@ -200,28 +196,27 @@ def editItem(category, item_id):
         return redirect(url_for('userLogin'))
     category_data = Session.query(Category.id, Category.name).filter_by(name=category).first()
     if category_data is None:
-        flash('Category not found.')
+        flash('Category not found.', 'warning')
         return redirect(url_for('showCategories'))
     # Check if item id exists and if it belongs to the selected category.
     item = Session.query(Item).filter_by(id=item_id, category_id=category_data[0]).first()
     if item is None:
-        flash('Item does not exist in this category.')
+        flash('Item does not exist in this category.', 'warning')
         return redirect(url_for('showItems', category=category))
     if request.method == 'POST':
-        # Check if item name already exists in the selected category.
-        if item.name == request.form['name']:
-            flash('Item already exists in this category.')
-            return redirect(url_for('showItems', category = category))
-        if request.form['name']:
+        formChanged = False
+        if request.form['name'] != item.name:
             item.name = request.form['name']
-        if request.form['description']:
+            formChanged = True
+        if request.form['description'] != item.description:
             item.description = request.form['description']
+            formChanged = True
         Session.add(item)
         Session.commit()
-        if not request.form['name'] and not request.form['description']:
-            flash('Nothing changed.')
+        if formChanged:
+            flash('Item updated successfully!', 'success')
         else:
-            flash('Item updated successfully!')
+            flash('Nothing changed.', 'info')
         return redirect(url_for('showItems', category=category))
     else:
         return render_template('editItem.html', category = category, item = item)
@@ -233,19 +228,19 @@ def deleteItem(category, item_id):
         return redirect(url_for('userLogin'))
     category_data = Session.query(Category.id, Category.name).filter_by(name=category).first()
     if category_data is None:
-        flash('Category not found.')
+        flash('Category not found.', 'warning')
         return redirect(url_for('showCategories'))
     # Check if item id exists and if it belongs to the selected category.
     item = Session.query(Item).filter_by(id=item_id, category_id=category_data[0]).first()
     if item is None:
-        flash('Item does not exist in this category.')
+        flash('Item does not exist in this category.', 'warning')
         return redirect(url_for('showItems', category=category))
     if request.method == 'POST':
         answer = request.form['answer']
         if answer == 'yes':
             Session.delete(item)
             Session.commit()
-            flash('Item deleted successfully!')
+            flash('Item deleted successfully!', 'success')
         return redirect(url_for('showItems', category=category))
     else:
         return render_template('deleteItem.html', category=category, item_id=item_id)
@@ -267,7 +262,6 @@ def getItems():
 @app.route('/json/<string:category>/items/')
 def getItemsFromCategory(category):
     category_id = Session.query(Category.id).filter_by(name=category).first()
-    print(category_id)
     if category_id is not None:
         items = Session.query(Item).filter_by(category_id=category_id[0]).all()
         return jsonify(Items = [i.serialize for i in items])

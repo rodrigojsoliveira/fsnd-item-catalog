@@ -3,7 +3,7 @@
     <div class="card mt-5 text-center">
         <div class="card-header">Login</div>
         <div class="card-body">
-            <h4 class="card-title">Plese sign in to create, edit, and delete items!</h4>
+            <h6 class="card-title">Plese sign in to create, edit, and delete items!</h6>
             <br>
             <div id="signinButton">
                 <span class="g-signin"
@@ -33,7 +33,7 @@
                         data: authResult['code'],
                         success: function(result) {
                             if (result) {
-                                $('#result').html('Login successfull</br></br>Redirecting...');
+                                $('#result').html('Login successfull. Redirecting...');
                                 console.log(result)
                                 setTimeout(function() {
                                     window.location.href = "{{ url_for('showCategories') }}";
