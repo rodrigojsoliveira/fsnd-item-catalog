@@ -27,7 +27,7 @@ Populate the database with initial data by running file `populate_database.py`.
 ## Running the Application
 To start the server, run `catalog.py` inside your `vagrant` folder. In your browser, go to `http://localhost:5000`. The item catalog should be displayed.
 
-##API Endpoints
+## API Endpoints
 There are a few endpoints you can go to retrieve JSON information from the catalog. They are:
 1. `/json/categories/` - Lists all categories in the catalog.
 1. `/json/items/` - Lists all items in the catalog.
