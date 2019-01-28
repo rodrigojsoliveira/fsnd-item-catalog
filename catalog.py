@@ -233,6 +233,9 @@ def editItem(category, item_id):
     if item is None:
         flash('Item does not exist in this category.', 'warning')
         return redirect(url_for('showItems', category=category))
+    if item.user_id != login_session['user_id']:
+        flash('You do not have permission to edit this item.', 'warning')
+        return redirect(url_for('showItems', category=category))
     if request.method == 'POST':
         formChanged = False
         if not request.form['name'] or not request.form['description']:
@@ -272,6 +275,9 @@ def deleteItem(category, item_id):
                                          category_id=category_data[0]).first()
     if item is None:
         flash('Item does not exist in this category.', 'warning')
+        return redirect(url_for('showItems', category=category))
+    if item.user_id != login_session['user_id']:
+        flash('You do not have permission to delete this item.', 'warning')
         return redirect(url_for('showItems', category=category))
     if request.method == 'POST':
         answer = request.form['answer']
