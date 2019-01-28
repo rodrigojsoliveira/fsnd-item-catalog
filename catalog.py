@@ -235,6 +235,9 @@ def editItem(category, item_id):
         return redirect(url_for('showItems', category=category))
     if request.method == 'POST':
         formChanged = False
+        if not request.form['name'] or not request.form['description']:
+            flash('Please enter an item name and description.', 'warning')
+            return redirect(url_for('showItems', category=category))
         if request.form['name'] != item.name:
             item.name = request.form['name']
             formChanged = True
