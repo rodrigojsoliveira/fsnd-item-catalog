@@ -22,15 +22,16 @@ engine = create_engine('sqlite:///catalog.db')
 Session = scoped_session(sessionmaker(bind=engine))
 
 
-# Redirect all request from root to /categories.
 @app.route('/')
 def redirectToShowCategories():
+    """Redirect all request from root to /categories."""
     return redirect(url_for('showCategories'))
 
 
 # Login
 @app.route('/login/')
 def userLogin():
+    """Show login page to user."""
     # Create a state token to prevent request forgery.
     state = ''.join(random.choice(
         string.ascii_uppercase + string.digits) for x in xrange(32))
@@ -41,6 +42,7 @@ def userLogin():
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
+    """Google authorization connect."""
     # Check state token sent from the client, preventing request forgery.
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
@@ -126,6 +128,7 @@ def gconnect():
 # Disconnect user.
 @app.route('/gdisconnect/')
 def gdisconnect():
+    """Google authorization disconnect."""
     # Disconnect connected users only.
     credentials = login_session['credentials']
     if credentials is None:
@@ -151,9 +154,9 @@ def gdisconnect():
         return redirect(url_for('showCategories'))
 
 
-# Show all categories.
 @app.route('/categories/')
 def showCategories():
+    """Show all categories."""
     categories = Session.query(Category).all()
     if ('username') not in login_session:
         return render_template('items.html', categories=categories)
@@ -161,9 +164,9 @@ def showCategories():
         return render_template('items_editable.html', categories=categories)
 
 
-# Show all items in selected category.
 @app.route('/categories/<string:category>/items/')
 def showItems(category):
+    """Show all items in selected category."""
     category_data = Session.query(Category.id, Category.name).filter_by(
         name=category).first()
     categories = Session.query(Category).all()
@@ -183,10 +186,10 @@ def showItems(category):
                                user_id=login_session['user_id'])
 
 
-# Add item.
 @app.route(
     '/categories/<string:category>/items/new/', methods=['GET', 'POST'])
 def addItem(category):
+    """Add item to specified category."""
     if 'username' not in login_session:
         return redirect(url_for('userLogin'))
     category_data = Session.query(Category.id, Category.name).filter_by(
@@ -216,10 +219,10 @@ def addItem(category):
         return render_template('addItem.html', category=category)
 
 
-# Edit item.
 @app.route('/categories/<string:category>/items/<int:item_id>/edit/',
            methods=['GET', 'POST'])
 def editItem(category, item_id):
+    """Edit item in specified category."""
     if 'username' not in login_session:
         return redirect(url_for('userLogin'))
     category_data = Session.query(Category.id, Category.name).filter_by(
@@ -259,10 +262,10 @@ def editItem(category, item_id):
                                item=item)
 
 
-# Delete item.
 @app.route('/categories/<string:category>/items/<int:item_id>/delete/',
            methods=['GET', 'POST'])
 def deleteItem(category, item_id):
+    """Delete specified item."""
     if 'username' not in login_session:
         return redirect(url_for('userLogin'))
     category_data = Session.query(Category.id, Category.name).filter_by(
@@ -292,23 +295,23 @@ def deleteItem(category, item_id):
 
 
 # *** API endpoints ***
-# Return all categories.
 @app.route('/json/categories/')
 def getCategories():
+    """Return all categories."""
     categories = Session.query(Category).all()
     return jsonify(Categories=[c.serialize for c in categories])
 
 
-# Return all items.
 @app.route('/json/items/')
 def getItems():
+    """Return all items."""
     items = Session.query(Item).all()
     return jsonify(Items=[i.serialize for i in items])
 
 
-# Return all items in specified category.
 @app.route('/json/<string:category>/items/')
 def getAllItemsFromCategory(category):
+    """Return all items in specified category."""
     category_id = Session.query(Category.id).filter_by(name=category).first()
     if category_id is not None:
         items = Session.query(Item).filter_by(category_id=category_id[0]).all()
@@ -317,9 +320,9 @@ def getAllItemsFromCategory(category):
         return ('Category not found.')
 
 
-# Return a specific item in specified category.
 @app.route('/json/<string:category>/items/<int:item_id>/')
 def getItemFromCategory(category, item_id):
+    """Return a specific item in specified category."""
     category_id = Session.query(Category.id).filter_by(name=category).first()
     if category_id is not None:
         item = Session.query(Item).filter_by(category_id=category_id[0],
@@ -332,8 +335,9 @@ def getItemFromCategory(category, item_id):
         return ('Category not found.')
 
 
-# Creates a new user if it's their first login and return their user_id.
 def createUser(login_session):
+    """Creates a new user if it's their first
+    login and return their user_id."""
     newUser = User(username=login_session['username'],
                    email=login_session['email'])
     Session.add(newUser)
@@ -344,14 +348,14 @@ def createUser(login_session):
     return user_id
 
 
-# Return a User object based on their user_id.
 def getUser(user_id):
+    """Return a User object based on their user_id."""
     user = Session.query(User).filter_by(id=user_id).one()
     return user
 
 
-# Retrieve a user_id based on their email.
 def getUserID(email):
+    """Retrieve a user_id based on their email."""
     user = Session.query(User).filter_by(email=email).first()
     if user:
         return user.id
