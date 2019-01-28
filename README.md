@@ -24,6 +24,9 @@ Run file `itemCatalogDatabase_setup.py` to create the database.
 
 Populate the database with initial data by running file `populate_database.py`.
 
+## Installing Dependencies
+File `requirements.txt` contains all dependencies. Run `pip install -r requirements.txt` to install the necessary packages.
+
 ## Running the Application
 To start the server, run `catalog.py` inside your `vagrant` folder. In your browser, go to `http://localhost:5000`. The item catalog should be displayed.
 
