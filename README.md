@@ -39,7 +39,7 @@ There are a few endpoints you can go to retrieve JSON information from the catal
 
 
 ## Python version
-You will need Python 3 installed on your system to run the log analysis tool.
+You will need Python 3 installed on your system to run this code.
 
 
 
